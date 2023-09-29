@@ -4,7 +4,7 @@
 #      algorithm of Euclidean       #
 #                                   #
 #    ___---******</>******---___    #
-#    dev by: wzee | version: 1.0    #
+#    dev by: wzee | version: 1.1    #
 #    ___---******</>******---___    #
 #                                   #
 # # # # # # # # # # # # # # # # # # #
@@ -23,6 +23,10 @@ def input_integer(text):
 
 # Function to get the gcd of a number using the algorithm of Euclidean
 def euclidean(number1, number2):
+   # Special case
+   if number1 == 0 or number2 == 0:
+      return 1
+
    # If the 2nd number is greater then the first, I change their values
    if number1 < number2:
       number1, number2 = number2, number1

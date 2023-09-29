@@ -6,13 +6,13 @@
 #         and vice-versa.           #
 #                                   #
 #    ___---******</>******---___    #
-#    dev by: wzee | version: 1.0    #
+#    dev by: wzee | version: 1.1    #
 #    ___---******</>******---___    #
 #                                   #
 # # # # # # # # # # # # # # # # # # #
 
 
-from math import atan, cos, sin, pi, radians
+from math import atan, cos, sin, pi, radians, degrees
 
 # Convert chooser function
 def choose_convertion_type():
@@ -65,16 +65,26 @@ def algebraic_to_trigonometric(algebra):
    algebra_imaginary = algebra["imaginary"]
    
    # Calculating abs value using the sqrt(a**2 + b**2) formula
-   absolute_value = abs((algebra_real**2 + algebra_imaginary**2)**0.5)
+   absolute_value = round(abs(
+      (algebra_real**2 + algebra_imaginary**2)**0.5
+   ))
    
    # If the real part is 0, then it's 90 degrees, otherwise return atan
    if abs(algebra_real) != 0:
-      angle = atan(abs(algebra_imaginary) / abs(algebra_real))
+      angle = degrees(atan(abs(algebra_imaginary) / abs(algebra_real)))
    else:
       angle = 90
 
+   # Change angle in case we are not in the top right part
+   if algebra_real < 0 and algebra_imaginary > 0:
+      angle = 180 - angle
+   elif algebra_real < 0 and algebra_imaginary < 0:
+      angle = 180 + angle
+   elif algebra_real > 0 and algebra_imaginary < 0:
+      angle = 360 - angle
+
    return {
-      "str": f"z = {absolute_value} * (cos({angle/180}π) + i * sin({angle/180}π))",
+      "str": f"z = {absolute_value} * (cos({round(angle/180, 3)}π) + i * sin({round(angle/180, 3)}π))",
       "absolute_value": absolute_value,
       "angle": angle
    }
@@ -86,8 +96,24 @@ def trigonometric_to_algebraic(trigonometric):
    angle = radians(trigonometric["angle"])   # Converting degree to radian
    
    # Getting the real part and imaginary part
-   real = absolute_value * cos(angle)
-   imaginary = absolute_value * sin(angle)   # This will be multipled by "i"
+   real = round(absolute_value * cos(angle), 3)
+   imaginary = round(absolute_value * sin(angle), 3)   # This will be multipled by "i"
+
+   # Guard clause in case it's not a complex number:
+   if trigonometric["angle"] in [0, 180]:
+      return {
+         "str": f"z = {real}",
+         "real": real,
+         "imaginary": 0
+      }
+
+   # Guard clause in case it doesn't have real part:
+   if real == 0:
+      return {
+         "str": f"z = {imaginary} * i",
+         "real": 0,
+         "imaginary": imaginary
+      }
 
    return {
       "str": f"z = {real} + {imaginary} * i",
